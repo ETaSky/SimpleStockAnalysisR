@@ -1,0 +1,25 @@
+---
+title: "Stock Market Data"
+output: html_document
+date: '2023-03-14'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(tidyverse)
+```
+## Download stock historical from yahoo website
+## Read CSV file
+```{r}
+AAPL <- read.csv("AAPL.csv")
+head(AAPL)
+```
+## Using quantmod
+```{r}
+#install.packages("quantmod")
+
+library(quantmod)
+aapl <- getSymbols("AAPL", from = "2016-01-01", to = "2019-01-01", src="yahoo", auto.assign = F)
+    ```
+
