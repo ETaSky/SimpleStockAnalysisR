@@ -10,16 +10,33 @@ library(data.table)
 library(tidyverse)
 ```
 ## Download stock historical from yahoo website
-## Read CSV file
-```{r}
-AAPL <- read.csv("AAPL.csv")
-head(AAPL)
-```
-## Using quantmod
+### Using quantmod
 ```{r}
 #install.packages("quantmod")
 
 library(quantmod)
-aapl <- getSymbols("AAPL", from = "2016-01-01", to = "2019-01-01", src="yahoo", auto.assign = F)
-    ```
+
+# aapl <- getSymbols("AAPL", from = "2016-01-01", to = "2019-01-01", src="yahoo", auto.assign = F)
+
+getSymbols("AAPL")
+```
+
+```{r}
+delts <- list()
+for(k in seq(50)){
+  delts[[k]] <- Delt(AAPL$AAPL.Adjusted, k = k) %>% fortify.zoo() %>% .[, 2, drop = F]
+}
+delts_tbl <- data.table::rbindlist(delts, idcol = "k", use.names = F) %>%
+  mutate(delta_pct = 100*Delt.1.arithmetic) %>%
+  filter(!is.na(delta_pct))
+
+delts_tbl_sum <- delts_tbl %>% group_by(k) %>% summarise(Mean = mean(delta_pct), Median = median(delta_pct))
+
+ggplot(delts_tbl, aes(x = factor(k, levels = seq(50)), y = delta_pct)) +
+  stat_summary(fun.data = "mean_cl_boot", colour = "red")
+for(k in seq(50)){
+  test = AAPL$AAPL.Adjusted %>% as.data.frame() %>% mutate(delt = (AAPL.Adjusted - dplyr::lag(AAPL.Adjusted, k))/dplyr::lag(AAPL.Adjusted, k))
+  print(mean(test$delt, na.rm = T))
+}
+```
 
